@@ -1,11 +1,11 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
-Version:	2.02.96
+Version:	2.02.98
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	4637503d792e9ee35a9b71387bcd8a93
+# Source0-md5:	1ce5b7f9981e1d02dfd1d3857c8d9fbe
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -100,8 +100,8 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post   -n device-mapper -p /sbin/ldconfig
-%postun -n device-mapper -p /sbin/ldconfig
+%post   -n device-mapper -p /usr/sbin/ldconfig
+%postun -n device-mapper -p /usr/sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
