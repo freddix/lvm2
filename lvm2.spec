@@ -1,7 +1,7 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
 Version:	2.02.100
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -63,9 +63,29 @@ Static devmapper library.
 %setup -qn LVM2.%{version}
 
 %build
+export CC="%{__cc}"
 cp -f /usr/share/automake/config.sub autoconf
 %{__aclocal}
 %{__autoconf}
+# static version
+%configure \
+	--disable-nls			\
+	--disable-readline		\
+	--disable-selinux		\
+	--enable-static_link		\
+	--with-optimisation="%{rpmcflags} -Os"	\
+	--with-snapshots=internal
+
+%{__make} -j1 -C include
+%{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
+%{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
+%{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB=
+%{__make} -j1 -C tools dmsetup.static
+%{__mv} tools/dmsetup.static dmsetup.static
+
+%{__make} distclean
+
+# shared version
 %configure \
 	--disable-selinux		\
 	--enable-applib			\
@@ -94,6 +114,8 @@ install -d $RPM_BUILD_ROOT{%{_sysconfdir}/lvm,/%{_lib}}
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
+
+install dmsetup.static $RPM_BUILD_ROOT%{_sbindir}/dmsetup.static
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
@@ -136,9 +158,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/lvm2cmd.h
 %{_pkgconfigdir}/*.pc
 
-%if 0
 %files -n device-mapper-static
 %defattr(644,root,root,755)
-%{_libdir}/libdevmapper*.a
-%endif
+%attr(755,root,root) %{_sbindir}/dmsetup.static
 
