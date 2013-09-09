@@ -13,23 +13,11 @@ BuildRequires:	readline-devel
 Requires:	device-mapper >= %{version}-%{release}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-# changing CFLAGS in the middle confuses confcache
-%undefine	configure_cache
-%undefine	with_ccache
-
 %define		skip_post_check_so	'.*libdevmapper-event-lvm2.so.*'
 
 %description
 This package includes a number of utilities for creating, checking,
 and repairing logical volumes.
-
-%package initrd
-Summary:	The new version of Logical Volume Manager for Linux - initrd version
-Group:		Base
-
-%description initrd
-This package includes a number of utilities for creating, checking,
-and repairing logical volumes - staticaly linked for initrd.
 
 %package -n device-mapper
 Summary:	Userspace support for the device-mapper
@@ -50,42 +38,11 @@ Requires:	device-mapper = %{version}-%{release}
 %description -n device-mapper-devel
 Header files and development documentation for %{name}.
 
-%package -n device-mapper-static
-Summary:	Static devmapper library
-License:	LGPL v2.1
-Group:		Development/Libraries
-Requires:	device-mapper-devel = %{version}-%{release}
-
-%description -n device-mapper-static
-Static devmapper library.
-
 %prep
 %setup -qn LVM2.%{version}
 
 %build
 export CC="%{__cc}"
-cp -f /usr/share/automake/config.sub autoconf
-%{__aclocal}
-%{__autoconf}
-# static version
-%configure \
-	--disable-nls			\
-	--disable-readline		\
-	--disable-selinux		\
-	--enable-static_link		\
-	--with-optimisation="%{rpmcflags} -Os"	\
-	--with-snapshots=internal
-
-%{__make} -j1 -C include
-%{__make} -j1 -C lib LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C libdaemon/client LIB_SHARED= VERSIONED_SHLIB=
-%{__make} -j1 -C tools dmsetup.static
-%{__mv} tools/dmsetup.static dmsetup.static
-
-%{__make} distclean
-
-# shared version
 %configure \
 	--disable-selinux		\
 	--enable-applib			\
@@ -114,8 +71,6 @@ install -d $RPM_BUILD_ROOT{%{_sysconfdir}/lvm,/%{_lib}}
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
-
-install dmsetup.static $RPM_BUILD_ROOT%{_sbindir}/dmsetup.static
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
@@ -157,8 +112,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/lvm2app.h
 %{_includedir}/lvm2cmd.h
 %{_pkgconfigdir}/*.pc
-
-%files -n device-mapper-static
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_sbindir}/dmsetup.static
 
