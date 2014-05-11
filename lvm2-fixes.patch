@@ -1,0 +1,31 @@
+diff -aurN LVM2.2.02.106.orig/scripts/dm_event_systemd_red_hat.socket.in LVM2.2.02.106/scripts/dm_event_systemd_red_hat.socket.in
+--- LVM2.2.02.106.orig/scripts/dm_event_systemd_red_hat.socket.in	2014-05-11 21:10:27.757612285 +0200
++++ LVM2.2.02.106/scripts/dm_event_systemd_red_hat.socket.in	2014-05-11 21:11:49.007658235 +0200
+@@ -7,6 +7,3 @@
+ ListenFIFO=@DEFAULT_DM_RUN_DIR@/dmeventd-server
+ ListenFIFO=@DEFAULT_DM_RUN_DIR@/dmeventd-client
+ SocketMode=0600
+-
+-[Install]
+-WantedBy=sockets.target
+diff -aurN LVM2.2.02.106.orig/scripts/lvm2_lvmetad_systemd_red_hat.socket.in LVM2.2.02.106/scripts/lvm2_lvmetad_systemd_red_hat.socket.in
+--- LVM2.2.02.106.orig/scripts/lvm2_lvmetad_systemd_red_hat.socket.in	2014-05-11 21:10:27.757612285 +0200
++++ LVM2.2.02.106/scripts/lvm2_lvmetad_systemd_red_hat.socket.in	2014-05-11 21:11:58.324663934 +0200
+@@ -6,6 +6,3 @@
+ [Socket]
+ ListenStream=@DEFAULT_RUN_DIR@/lvmetad.socket
+ SocketMode=0600
+-
+-[Install]
+-WantedBy=sockets.target
+diff -aurN LVM2.2.02.106.orig/scripts/lvm2_pvscan_systemd_red_hat@.service.in LVM2.2.02.106/scripts/lvm2_pvscan_systemd_red_hat@.service.in
+--- LVM2.2.02.106.orig/scripts/lvm2_pvscan_systemd_red_hat@.service.in	2014-05-11 21:10:27.757612285 +0200
++++ LVM2.2.02.106/scripts/lvm2_pvscan_systemd_red_hat@.service.in	2014-05-11 21:11:04.965637000 +0200
+@@ -11,5 +11,5 @@
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes
+-ExecStart=@sbindir@/pvscan --cache --activate ay %i
+-ExecStop=@sbindir@/pvscan --cache %i
++ExecStart=@sbindir@/lvm pvscan --cache --activate ay %i
++ExecStop=@sbindir@/lvm pvscan --cache %i

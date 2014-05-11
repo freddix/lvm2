@@ -1,11 +1,13 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
 Version:	2.02.106
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 # Source0-md5:	77f84279fb649b3dc4edad1c6d1a1b0e
+Patch0:		%{name}-fixes.patch
+Patch1:		%{name}-enable-lvmetad-by-default.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -40,6 +42,8 @@ Header files and development documentation for %{name}.
 
 %prep
 %setup -qn LVM2.%{version}
+%patch0 -p1
+%patch1 -p1
 
 %build
 export CC="%{__cc}"
@@ -49,9 +53,13 @@ export CC="%{__cc}"
 	--enable-cmdlib			\
 	--enable-dmeventd		\
 	--enable-fsadm			\
+	--enable-lvmetad		\
 	--enable-pkgconfig		\
 	--enable-readline		\
-	--with-cluster=internal		\
+	--with-default-dm-run-dir=/run	\
+	--with-default-locking-dir=/run/lock/lvm    \
+	--with-default-pid-dir=/run	\
+	--with-default-run-dir=/run/lvm	\
 	--with-group=			\
 	--with-interface=ioctl		\
 	--with-lvm1=internal		\
@@ -59,15 +67,16 @@ export CC="%{__cc}"
 	--with-optimisation="%{rpmcflags}"	\
 	--with-pool=internal		\
 	--with-snapshots=internal	\
+	--with-thin=internal		\
 	--with-user=			\
 	--with-usrlibdir=%{_libdir}
 %{__make} -j1
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/lvm,/%{_lib}}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
 
-%{__make} install \
+%{__make} install install_system_dirs install_systemd_units \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
@@ -77,8 +86,24 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+%systemd_post lvm2-monitor.service
+%systemd_post blk-availability.service
+%systemd_post lvm2-lvmetad.socket
+
+%preun
+%systemd_preun lvm2-monitor.service
+%systemd_preun blk-availability.service
+%systemd_preun lvm2-lvmetad.socket
+
+%postun
+%systemd_postun
+
 %post   -n device-mapper -p /usr/sbin/ldconfig
 %postun -n device-mapper -p /usr/sbin/ldconfig
+
+%if 0
+%endif
 
 %files
 %defattr(644,root,root,755)
@@ -92,6 +117,11 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/*.profile
+%{systemdunitdir}/blk-availability.service
+%{systemdunitdir}/lvm2-lvmetad.service
+%{systemdunitdir}/lvm2-lvmetad.socket
+%{systemdunitdir}/lvm2-monitor.service
+%{systemdunitdir}/lvm2-pvscan@.service
 
 %files -n device-mapper
 %defattr(644,root,root,755)
@@ -103,6 +133,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/liblvm2cmd.so.*.*
 %dir %{_libdir}/device-mapper
 %attr(755,root,root) %{_libdir}/device-mapper/*.so
+%{systemdunitdir}/dm-event.service
+%{systemdunitdir}/dm-event.socket
 %{_mandir}/man8/dmsetup.8*
 
 %files -n device-mapper-devel
