@@ -1,7 +1,7 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
 Version:	2.02.106
-Release:	2
+Release:	3
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
@@ -12,6 +12,7 @@ URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	readline-devel
+Requires(post,preun,postun):	systemd-units
 Requires:	device-mapper >= %{version}-%{release}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
