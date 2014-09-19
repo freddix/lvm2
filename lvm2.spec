@@ -1,11 +1,11 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
-Version:	2.02.109
+Version:	2.02.111
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	8fec006327b266fa611b165d8ec0b008
+# Source0-md5:	02487ab2a9e02d1ee76fe217183df28a
 Patch0:		%{name}-enable-lvmetad-by-default.patch
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
@@ -54,6 +54,7 @@ export CC="%{__cc}"
 	--enable-lvmetad		\
 	--enable-pkgconfig		\
 	--enable-readline		\
+	--with-cache=internal		\
 	--with-default-dm-run-dir=/run	\
 	--with-default-locking-dir=/run/lock/lvm    \
 	--with-default-pid-dir=/run	\
