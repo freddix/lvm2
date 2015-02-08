@@ -1,12 +1,11 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
-Version:	2.02.111
+Version:	2.02.116
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	02487ab2a9e02d1ee76fe217183df28a
-Patch0:		%{name}-enable-lvmetad-by-default.patch
+# Source0-md5:	3a1104e3d1dc4d5e92a40228161cd660
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -41,7 +40,6 @@ Header files and development documentation for %{name}.
 
 %prep
 %setup -qn LVM2.%{version}
-%patch0 -p1
 
 %build
 export CC="%{__cc}"
@@ -54,6 +52,7 @@ export CC="%{__cc}"
 	--enable-lvmetad		\
 	--enable-pkgconfig		\
 	--enable-readline		\
+	--enable-udev-systemd-background-jobs	\
 	--with-cache=internal		\
 	--with-default-dm-run-dir=/run	\
 	--with-default-locking-dir=/run/lock/lvm    \
@@ -73,12 +72,16 @@ export CC="%{__cc}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/lvm \
+    $RPM_BUILD_ROOT%{systemdunitdir}/sockets.target.wants
 
 %{__make} install install_system_dirs install_systemd_units \
 	DESTDIR=$RPM_BUILD_ROOT \
 	OWNER="" \
 	GROUP=""
+
+ln -sf ../dm-event.socket \
+    $RPM_BUILD_ROOT%{systemdunitdir}/sockets.target.wants/dm-event.socket
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/lvm/lvm.conf
 
@@ -121,6 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/device-mapper/*.so
 %{systemdunitdir}/dm-event.service
 %{systemdunitdir}/dm-event.socket
+%{systemdunitdir}/sockets.target.wants/dm-event.socket
 %{_mandir}/man8/dmsetup.8*
 
 %files -n device-mapper-devel
