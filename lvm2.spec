@@ -1,11 +1,11 @@
 Summary:	The new version of Logical Volume Manager for Linux
 Name:		lvm2
-Version:	2.02.116
+Version:	2.02.117
 Release:	1
 License:	GPL v2
 Group:		Applications/System
 Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
-# Source0-md5:	3a1104e3d1dc4d5e92a40228161cd660
+# Source0-md5:	ab5889dae7924b44ed2444161058a419
 URL:		http://sources.redhat.com/lvm2/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -104,6 +104,7 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_mandir}/man8/dmsetup.8*
 %attr(750,root,root) %dir %{_sysconfdir}/lvm
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvm.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/lvmlocal.conf
 %attr(750,root,root) %dir %{_sysconfdir}/lvm/profile
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/lvm/profile/*.profile
 %{systemdunitdir}/blk-availability.service
